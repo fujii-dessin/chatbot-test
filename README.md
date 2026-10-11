@@ -1,19 +1,31 @@
-# 💬 Chatbot template
+# 💬 Chatbot (Gemini)
 
-A simple Streamlit app that shows how to build a chatbot using OpenAI's GPT-3.5.
+Streamlit で動く Gemini チャットボット。API キーは `st.secrets` から読むので毎回入力しなくてよい。
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://chatbot-template.streamlit.app/)
+### API キーの保管場所
 
-### How to run it on your own machine
+キーの読み込み順: `secrets.toml` → 環境変数 `GEMINI_API_KEY` → サイドバーの手入力。
 
-1. Install the requirements
+**ローカル / Codespaces**
 
-   ```
-   $ pip install -r requirements.txt
-   ```
+```
+cp .streamlit/secrets.toml.example .streamlit/secrets.toml
+# secrets.toml を開いて GEMINI_API_KEY にキーを貼る
+```
 
-2. Run the app
+`.streamlit/secrets.toml` は `.gitignore` 済みなので commit されない。**このリポジトリは公開なので、キーは絶対に commit しないこと。**
 
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+**Streamlit Community Cloud**
+
+アプリの「Settings」→「Secrets」に以下を貼って保存する。
+
+```
+GEMINI_API_KEY = "ここにキー"
+```
+
+### ローカルで動かす
+
+```
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```

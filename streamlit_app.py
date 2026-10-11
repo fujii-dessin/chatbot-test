@@ -1,3 +1,5 @@
+import os
+
 import streamlit as st
 import google.generativeai as genai
 
@@ -5,21 +7,37 @@ import google.generativeai as genai
 st.title("💬 Chatbot")
 st.write(
     "This is a simple chatbot that uses Google's Gemini model to generate responses. "
-    "To use this app, you need to provide a Gemini API key, which you can get [here](https://aistudio.google.com/app/apikey). "
+    "The Gemini API key is read from `.streamlit/secrets.toml` (you can get a key [here](https://aistudio.google.com/app/apikey)). "
     "You can also learn how to build this app step by step by [following our tutorial](https://docs.streamlit.io/develop/tutorials/llms/build-conversational-apps)."
 )
 
-# Ask user for their Gemini API key via `st.text_input`.
-# Alternatively, you can store the API key in `./.streamlit/secrets.toml` and access it
-# via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
-gemini_api_key = st.text_input("Gemini API Key", type="password")
+# Resolve the Gemini API key in this order:
+#   1. .streamlit/secrets.toml (local) / App settings > Secrets (Streamlit Community Cloud)
+#   2. GEMINI_API_KEY environment variable
+#   3. Manual input in the sidebar (fallback)
+def get_api_key() -> str:
+    try:
+        key = st.secrets.get("GEMINI_API_KEY", "")
+    except Exception:
+        key = ""
+    if not key:
+        key = os.environ.get("GEMINI_API_KEY", "")
+    if not key:
+        key = st.sidebar.text_input("Gemini API Key", type="password")
+    return (key or "").strip()
+
+
+gemini_api_key = get_api_key()
 if not gemini_api_key:
-    st.info("Please add your Gemini API key to continue.", icon="🗝️")
+    st.info(
+        "Gemini API key not found. Add it to `.streamlit/secrets.toml` "
+        "(or the Secrets panel on Streamlit Community Cloud), "
+        "or enter it in the sidebar.",
+        icon="🗝️",
+    )
 else:
 
-    # Configure Gemini API with trimmed key.
-    api_key = gemini_api_key.strip()
-    genai.configure(api_key=api_key)
+    genai.configure(api_key=gemini_api_key)
     model = genai.GenerativeModel("gemini-3.8-flash")
 
     # Create a session state variable to store the chat messages. This ensures that the
