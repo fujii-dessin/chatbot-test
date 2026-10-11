@@ -12,8 +12,15 @@ gemini_api_key = st.secrets.get("GEMINI_API_KEY")
 if not gemini_api_key:
     st.info("Streamlit Community CloudのSecretsに `GEMINI_API_KEY` を設定してください。", icon="🗝️")
 else:
-    # 使用するモデル（固定）
-    model_name = "gemini-3.8-flash"
+    # ユーザーがモデルを選択できるようにする
+    model_name = st.selectbox(
+        "使用する Gemini モデルを選択",
+        (
+            "gemini-3.8-flash", 
+            "gemini-3.5-flash-lite"
+        )
+    )
+    st.write(f"現在のモデル: **{model_name}**")
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
